@@ -10,3 +10,4 @@
 8) Лучшие модели [здесь](https://drive.google.com/drive/folders/13x2UTMFW1b_NonXI6f55mTAWRKXkb-6t?usp=sharing)
 9) лучшая модель показывает rmse train 18.5million, val=18.2 million, test=17.2 million. Можно было бы больше поэкспериментировать с припросессенгами, моделями, нейронки vs деревья, но из-за нехватки времени и железа пока так. <br>
 10) Рез-ы эспериментов можно посмотреть [здесь](https://drive.google.com/drive/folders/13x2UTMFW1b_NonXI6f55mTAWRKXkb-6t?usp=sharing), либо через mlflow.db
+11) В run5.sh можете посмотреть как ранить тренировку модели
