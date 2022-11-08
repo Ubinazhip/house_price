@@ -57,6 +57,9 @@ class Preprocessing():
         else:
             for i in range(0, dfX.shape[0]):
                 dfX.year.iloc[i] = self.area_median_year[dfX.area.iloc[i]]
+        if self.save_artefacts:
+            with open('./utils/area_median_year.pkl', 'wb') as f:
+                pickle.dump(self.area_median_year, f)
 
         return dfX
 
@@ -90,7 +93,9 @@ class Preprocessing():
                     dfX['floors'].iloc[i] = 1
                 else:
                     dfX['floor'].iloc[i] = dfX['floors_all'].iloc[i] // 2
-
+        if self.save_artefacts:
+            with open('./utils/year_median_floor.pkl', 'wb') as f:
+                pickle.dump(self.year_median_floor, f)
         return dfX
 
     def find_floor_all(self, row):
