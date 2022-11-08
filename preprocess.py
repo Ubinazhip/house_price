@@ -1,6 +1,5 @@
 import pandas as pd
 import warnings
-from sklearn.model_selection import train_test_split
 warnings.simplefilter("ignore")
 import math
 from sklearn.preprocessing import OneHotEncoder
@@ -9,31 +8,28 @@ almaty_areas = ['Ауэзовский', 'Бостандыкский', 'Алма�
                 'Жетысуский']
 import pickle
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
+from sklearn.model_selection import train_test_split
 
 
 class Preprocessing():
-    def __init__(self, file_name="Data.xlsx", test_size=0.1, random_state=42, save_artefacts=False, i=0):
+    def __init__(self, file_name="Data.xlsx", test_size=0.1, val_size=0.2, random_state=42, save_artefacts=False):
         self.df = pd.read_excel(file_name)
         self.df = self.df.drop(columns=["urls"])
         self.test_size = test_size
+        self.val_size = val_size
         self.random_state = random_state
-        #y = self.df["price"]
-        #X = self.df.drop(columns=["price"])
-        mskf = MultilabelStratifiedKFold(n_splits=8, shuffle=True, random_state=random_state)
-        for train_index, test_index in mskf.split(self.df, self.df[['year', 'area', 'price']]):
-            X_train = self.df.iloc[train_index]
-            self.X_test = self.df.iloc[test_index]
-            break
 
-        mskf = MultilabelStratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
-        idx = 0
-        for train_index, val_index in mskf.split(X_train, X_train[['year', 'area', 'price']]):
-            self.X_train = X_train.iloc[train_index]
-            self.X_val = X_train.iloc[val_index]
-            if idx == i:
-                break
-            idx += 1
-        self.i = i
+        y = self.df['price']
+        self.df = self.df.drop(columns=['price'])
+
+        X_train_val, self.X_test, y_train_val, self.y_test = train_test_split(self.df, y, test_size=self.test_size,
+                                                                              random_state=self.random_state)
+
+        self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(X_train_val, y_train_val, test_size=self.val_size,
+                                                                              random_state=self.random_state)
+        self.X_train = pd.concat([self.X_train, self.y_train], axis=1)
+        self.X_val = pd.concat([self.X_val, self.y_val], axis=1)
+        self.X_test = pd.concat([self.X_test, self.y_test], axis=1)
         self.save_artefacts = save_artefacts
 
     def streets_to_area(self, dfX):
@@ -41,7 +37,7 @@ class Preprocessing():
         convert street names in area into new area "Район9"
         :param dfX: dataframe
         '''
-        dfX['area'] = dfX['area'].apply(lambda x: x if x in almaty_areas else 'Район9')
+        dfX['area'] = dfX['area'].apply(lambda x: x if x in almaty_areas else 'district9')
         return dfX
 
     def year_to_int(self, dfX, train=False):
@@ -65,6 +61,11 @@ class Preprocessing():
         return dfX
 
     def missing_entries(self, dfX, train=False):
+        '''
+
+        fill missing entries in floors and floors_all
+
+        '''
         if train:
             year_div = []
             for i in range(0, dfX.shape[0]):
@@ -107,6 +108,11 @@ class Preprocessing():
         self.X_test.reset_index(drop=True, inplace=True)
 
     def one_hot_encoder(self):
+        '''
+
+        one hot encoder of column area
+
+        '''
         one_hot = OneHotEncoder(drop='first')
         one_hot.fit(self.X_train['area'][:, None])
         arr_train = one_hot.transform(self.X_train['area'][:, None]).toarray()
@@ -123,24 +129,37 @@ class Preprocessing():
         self.X_val.drop(columns=['area'], inplace=True)
         self.X_test.drop(columns=['area'], inplace=True)
         if self.save_artefacts:
-            pickle.dump(one_hot, open(f'./utils/one_hot_enc{self.i}.pkl', 'wb'))
+            pickle.dump(one_hot, open(f'./utils/one_hot_enc.pkl', 'wb'))
 
     def scale_data(self):
+        '''
+
+        normalize numeric features and target variable
+
+        '''
         numeric_features = ['rooms', 'sq_m', 'floor', 'floors_all', 'year']
         scaler = StandardScaler()
         self.X_train[numeric_features] = scaler.fit_transform(self.X_train[numeric_features])
         self.X_val[numeric_features] = scaler.transform(self.X_val[numeric_features])
         self.X_test[numeric_features] = scaler.transform(self.X_test[numeric_features])
-
         scaler_target = StandardScaler()
         self.X_train['price'] = scaler_target.fit_transform(self.X_train['price'][:,None])
         self.X_val['price'] = scaler_target.transform(self.X_val['price'][:,None])
         self.X_test['price'] = scaler_target.transform(self.X_test['price'][:,None])
+
         if self.save_artefacts:
-            pickle.dump(scaler, open(f'./utils/feature_scaler{self.i}.pkl', 'wb'))
-            pickle.dump(scaler_target, open(f'./utils/target_scaler{self.i}.pkl', 'wb'))
+            pickle.dump(scaler, open(f'./utils/feature_scaler.pkl', 'wb'))
+            pickle.dump(scaler_target, open(f'./utils/target_scaler.pkl', 'wb'))
 
     def preprocess_data(self):
+        '''
+
+        overall preprocessing steps:
+        1-step: convert street names to district9
+        2-step: convert year of type string to int
+        3-step: fill missing entries
+
+        '''
         self.X_train = self.streets_to_area(self.X_train)
         self.X_val = self.streets_to_area(self.X_val)
         self.X_test = self.streets_to_area(self.X_test)
@@ -153,13 +172,13 @@ class Preprocessing():
         self.reset_indices()
         self.one_hot_encoder()
         if self.save_artefacts:
-            self.X_train.to_csv(f'./data/train{self.i}.csv', index=False)
-            self.X_val.to_csv(f'./data/val{self.i}.csv', index=False)
-            self.X_test.to_csv(f'./data/test{self.i}.csv', index=False)
+            self.X_train.to_csv(f'./data/train.csv', index=False)#pd.concat([self.X_train, self.y_train], axis=1)
+            self.X_val.to_csv(f'./data/val.csv', index=False)
+            self.X_test.to_csv(f'./data/test.csv', index=False)
         self.scale_data()
         if self.save_artefacts:
-            self.X_train.to_csv(f'./data/train_norm{self.i}.csv', index=False)
-            self.X_val.to_csv(f'./data/val_norm{self.i}.csv', index=False)
-            self.X_test.to_csv(f'./data/test_norm{self.i}.csv', index=False)
+            self.X_train.to_csv(f'./data/train_norm.csv', index=False)#pd.concat([self.X_train, self.y_train], axis=1)
+            self.X_val.to_csv(f'./data/val_norm.csv', index=False)
+            self.X_test.to_csv(f'./data/test_norm.csv', index=False)
 
         return self.X_train, self.X_val, self.X_test
