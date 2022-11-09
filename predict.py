@@ -28,6 +28,22 @@ def year_to_int(df):
     return curr_year
 
 
+def fill_empty_floor(df):
+    if df['floor'].item() is None and df['floors_all'].item() is not None:
+        df['floor'] = max(df['floors_all'].item() // 2, 1)
+    elif df['floor'].item() is not None and df['floors_all'].item() is None:
+        df['floors_all'] = df['floor'] * 2
+    elif df['floor'].item() is None and df['floors_all'].item() is None:
+        if df['year'].item() <= 1990:
+            df['floors_all'] = year_median_floor['[ - 1990]']
+        elif df['year'].item() >= 2010:
+            df['floors_all'] = year_median_floor['[2010 - )']
+        else:
+            df['floors_all'] = year_median_floor['(1990 - 2010]']
+        df['floor'] = df['floors_all'] // 2
+    return df
+
+
 def one_hot(df):
     res = one_hot_enc.transform(df['area'].to_numpy()[:, None]).toarray()
     cols_name = [f'area{i}' for i in range(1, 9)]
@@ -46,6 +62,8 @@ def preprocess(curr_dict):
     df = pd.DataFrame(curr_dict, index=[0])
     df['area'] = streets_to_area(df['area'])
     df['year'] = year_to_int(df)
+    df = fill_empty_floor(df)
+    #print(df['floors_all'])
     scale_data(df)
     df = one_hot(df)
     return df
@@ -54,15 +72,20 @@ def preprocess(curr_dict):
 if __name__ == '__main__':
     curr_dict = {'rooms': 2,
                  'sq_m': 76.0,
-                 'floor': 8.0,
-                 'floors_all': 19.0,
+                 'floor': 10,
+                 'floors_all': 10,
                  'area': 'Алмалинский',
                  'year': '2020'}
     res = preprocess(curr_dict)
-    model = pickle.load(open('./utils/ridge_model.pkl','rb'))
+    model1 = pickle.load(open('./utils/ridge_model.pkl','rb'))
+    model2 = pickle.load(open('./utils/xgboost_model.pkl','rb'))
     res = res.drop(columns=["rooms"])
-    y_pred = model.predict(res)
-#    print(y_pred)
-    price = target_scaler.inverse_transform(y_pred[:,None])
+    y_pred_ridge = model1.predict(res)
+    y_pred_xgboost = model2.predict(res)
+
+    price_ridge = target_scaler.inverse_transform(y_pred_ridge[:,None])
+    price_xgboost = target_scaler.inverse_transform(y_pred_xgboost[:,None])
     print(f'the house characteristics {curr_dict}')
-    print(f'The price for the given house is {price[0][0]:.1f}')
+    print(f'The price for the given house is:')
+    print(f'Ridge prediction: =  {price_ridge[0][0]:.1f}')
+    print(f'Xgboost prediction: =  {price_xgboost[0][0]:.1f}')
