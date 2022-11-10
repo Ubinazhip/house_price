@@ -2,7 +2,7 @@ import requests
 import json
 
 curr_dict = {"rooms": 2,
-              "sq_m": 40.0,
+              "sq_m": 140.0,
               "floor": 1,
               "floors_all": 10,
               "area": "Бостандыкский",
