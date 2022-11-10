@@ -5,7 +5,7 @@ Predict the prices of flats in Almaty(Kazakhstan).
 Dataset [Data.xlsx](https://github.com/Ubinazhip/house_price/blob/main/Data.xlsx) was derived from popular website in Kazakhstan krisha.kz. It has features like rooms, sq_m, floor, floors_all, year
 ## Files
 - [notebook.ipynb](https://github.com/Ubinazhip/house_price/blob/main/notebook.ipynb) - data analysis, clearning, train val test split, finetuning ridge and lasso regression and finetuning xgboost model using hyperopt <br>
-- [preprocessing.py](https://github.com/Ubinazhip/house_price/blob/main/preprocess.py) - all preprocessing steps, train test split on one file. I have run this file inside notebook.ipynb <br> 
+- [preprocessing.py](https://github.com/Ubinazhip/house_price/blob/main/preprocess.py) - all preprocessing steps, train test split in one file. <br> 
 - [train.py](https://github.com/Ubinazhip/house_price/blob/main/train.py) - training xgboost model(which was found to be the best among ridge and lasso) using best parameters, which were found during the finetuning in notebook.ipynb <br>
 - [predict.py](https://github.com/Ubinazhip/house_price/blob/main/predict.py) - loads xgboost model and predicts. The flask application is used. <br>
 - [test.py](https://github.com/Ubinazhip/house_price/blob/main/test.py) - after you run predict file, you can send the requests using test.py file <br>
