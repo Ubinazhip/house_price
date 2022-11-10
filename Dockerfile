@@ -15,6 +15,9 @@ COPY ["*.py", "./"]
 
 WORKDIR /house_price/utils
 COPY ["utils", "./"]
+WORKDIR /house_price/data
+COPY ["data", "./"]
+
 WORKDIR /house_price/
 
 RUN apt-get update && apt-get install libgomp1

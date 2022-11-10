@@ -1,11 +1,13 @@
 import requests
 import json
 
+almaty_areas = ['Ауэзовский', 'Бостандыкский', 'Алмалинский', 'Алатауский', 'Медеуский', 'Наурызбайский', 'Турксибский',
+                'Жетысуский']
 curr_dict = {"rooms": 2,
-              "sq_m": 140.0,
+              "sq_m": 40.0,
               "floor": 1,
               "floors_all": 10,
-              "area": "Бостандыкский",
+              "area": "Алмалинский",
               "year": "2010"}
 
 url = "http://localhost:9696/predict"

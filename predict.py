@@ -1,6 +1,7 @@
 import pandas as pd
 import pickle
 from flask import Flask, request, jsonify
+import xgboost as xgb
 
 app = Flask('house_price')
 
@@ -74,40 +75,17 @@ def preprocess(curr_dict):
 def predict():
     customer = request.get_json()
     res = preprocess(customer)
-    model1 = pickle.load(open('./utils/ridge_model.pkl','rb'))
-    model2 = pickle.load(open('./utils/xgboost_model.pkl','rb'))
+    model = pickle.load(open('./utils/xgboost_model.pkl','rb'))
     res = res.drop(columns=["rooms"])
-    y_pred_ridge = model1.predict(res)
-    y_pred_xgboost = model2.predict(res)
-    price_ridge = target_scaler.inverse_transform(y_pred_ridge[:,None])
+    train = xgb.DMatrix(res)
+    y_pred_xgboost = model.predict(train)
     price_xgboost = target_scaler.inverse_transform(y_pred_xgboost[:,None])
 
     result = {
-        'predicted price': (float(price_ridge) + float(price_xgboost)) // 2
+        'predicted price': float(price_xgboost)
     }
     return jsonify(result)
 
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=9696)
-#    curr_dict = {'rooms': 2,
-#                 'sq_m': 76.0,
-#                 'floor': 10,
-#                 'floors_all': 10,
-#                 'area': 'Алмалинский',
-#                 'year': '2020'}
-'''
-    res = preprocess(curr_dict)
-    model1 = pickle.load(open('./utils/ridge_model.pkl','rb'))
-    model2 = pickle.load(open('./utils/xgboost_model.pkl','rb'))
-    res = res.drop(columns=["rooms"])
-    y_pred_ridge = model1.predict(res)
-    y_pred_xgboost = model2.predict(res)
-
-    price_ridge = target_scaler.inverse_transform(y_pred_ridge[:,None])
-    price_xgboost = target_scaler.inverse_transform(y_pred_xgboost[:,None])
-    print(f'the house characteristics {curr_dict}')
-    print(f'The price for the given house is:')
-    print(f'Ridge prediction: =  {price_ridge[0][0]:.1f}')
-    print(f'Xgboost prediction: =  {price_xgboost[0][0]:.1f}')
-'''
