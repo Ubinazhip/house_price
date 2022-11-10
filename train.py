@@ -1,6 +1,11 @@
 import pickle
 import xgboost as xgb
 from utils import utils
+from preprocess import Preprocessing
+
+data = Preprocessing(file_name="Data.xlsx", test_size=0.1, random_state=20, save_artefacts=True)
+
+X_train, X_val, X_test = data.preprocess_data()
 
 X_train, y_train, X_val, y_val, X_test, y_test = utils.get_data()
 train = xgb.DMatrix(X_train, label=y_train)
