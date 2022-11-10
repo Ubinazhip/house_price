@@ -2,7 +2,7 @@
 ## Task
 Predict the prices of flats in Almaty(Kazakhstan).
 ## Data
-Dataset [Data.xlsx](https://github.com/Ubinazhip/house_price/blob/main/Data.xlsx) was derived from popular website in Kazakhstan krisha.kz. It has features like rooms, sq_m, floor, floors_all, year
+Dataset [Data.xlsx](https://github.com/Ubinazhip/house_price/blob/main/Data.xlsx) was derived from the popular website in Kazakhstan krisha.kz. It has features like rooms, sq_m, floor, floors_all, year nad target variable price
 ## Files
 - [notebook.ipynb](https://github.com/Ubinazhip/house_price/blob/main/notebook.ipynb) - data analysis, clearning, train val test split, finetuning ridge and lasso regression and finetuning xgboost model using hyperopt <br>
 - [preprocessing.py](https://github.com/Ubinazhip/house_price/blob/main/preprocess.py) - all preprocessing steps, train test split in one file. <br> 
