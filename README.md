@@ -11,7 +11,7 @@ Dataset [Data.xlsx](https://github.com/Ubinazhip/house_price/blob/main/Data.xlsx
 - [test.py](https://github.com/Ubinazhip/house_price/blob/main/test.py) - after you run predict file, you can send the requests using test.py file <br>
 - [data](https://github.com/Ubinazhip/house_price/tree/main/data) - folder with train, val and test splits. Derived using [preprocessing.py](https://github.com/Ubinazhip/house_price/blob/main/preprocess.py) inside [notebook.ipynb](https://github.com/Ubinazhip/house_price/blob/main/notebook.ipynb)
 ## How to run the project
-1) clone the project - git clone  <br>
+1) clone the project - git clone https://github.com/Ubinazhip/house_price.git  <br>
 2) use docker to build an image - **docker build -t house_price .** <br>
 3) run the image and you will be in bash - **docker run -it --rm -p 9696:9696 house_price:latest** <br>
 4) train the xgboost model - **python3 train.py** <br>
