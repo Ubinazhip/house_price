@@ -7,7 +7,6 @@ from sklearn.preprocessing import StandardScaler
 almaty_areas = ['Ауэзовский', 'Бостандыкский', 'Алмалинский', 'Алатауский', 'Медеуский', 'Наурызбайский', 'Турксибский',
                 'Жетысуский']
 import pickle
-from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 from sklearn.model_selection import train_test_split
 
 

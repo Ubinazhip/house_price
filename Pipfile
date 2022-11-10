@@ -11,6 +11,7 @@ flask = "*"
 gunicorn = "*"
 numpy = "*"
 xgboost = "==1.2.1"
+xlrd = "==1.2.0"
 
 [dev-packages]
 

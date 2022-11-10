@@ -11,7 +11,7 @@ ENV PYTHONUNBUFFERED=TRUE
 RUN pipenv install --deploy --system && \
     rm -rf /root/.cache
 
-COPY ["*.py", "./"]
+COPY ["*.py", "Data.xlsx", "./"]
 
 WORKDIR /house_price/utils
 COPY ["utils", "./"]
